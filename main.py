@@ -6,29 +6,30 @@ from kivy.properties import StringProperty, ListProperty
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
-from jnius import autoclass
 import math
 
-Config.set('graphics','width','300')
-Config.set('graphics','height','500')
+Config.set('graphics', 'width', '300')
+Config.set('graphics', 'height', '500')
 
 class Btn(Button):
-    def __init__(self,val='0',**kwargs):
-        super(Btn,self).__init__(**kwargs)
+    def __init__(self, val='0', **kwargs):
+        super(Btn, self).__init__(**kwargs)
         self.text = val
-  
+
+
 class MainLayout(FloatLayout):
-    
+
     def __init__(self, **kwargs):
         super(MainLayout, self).__init__(**kwargs)
 
     def prev(self):
         app = App.get_running_app()
         if len(app.history) != 0:
-            app.str = app.history.pop()
+            app.val_str = app.history.pop()
+
 
 class Keys(GridLayout):
-    
+
     def __init__(self, **kwargs):
         super(Keys, self).__init__(**kwargs)
         self.cols = 4
@@ -41,75 +42,75 @@ class Keys(GridLayout):
         for i in self.keys:
             self.add_widget(Btn(i))
 
-class MyApp(App):
 
-    str = StringProperty('')
+class MyApp(App):
+    val_str = StringProperty('')
     history = ListProperty([])
     flag = 0
-    
-    def do_operation(self,txt):
 
-        if self.str == "Error" or self.str == "Zero-div":
-            self.str = ""
-            
+    def do_operation(self, txt):
+
+        if self.val_str == "Error" or self.val_str == "Zero-div":
+            self.val_str = ""
+
         if txt == "AC":
             self.flag = 0
             self.save_history()
-            self.str = ""
-            
-        elif txt =="C":
-            self.flag = 0             
+            self.val_str = ""
+
+        elif txt == "C":
+            self.flag = 0
             self.save_history()
-            self.str = self.str[0:-1]
-                
-        elif txt =="( )":
+            self.val_str = self.val_str[0:-1]
+
+        elif txt == "( )":
             if self.flag == 0:
-                self.str += '('
-                self.flag=1
+                self.val_str += '('
+                self.flag = 1
             else:
-                self.flag=0
-                self.str += ')'
-                
-        elif txt =="=":
+                self.flag = 0
+                self.val_str += ')'
+
+        elif txt == "=":
             try:
                 self.save_history()
-                self.str = str(eval(self.str))
+                self.val_str = str(eval(self.val_str))
             except ZeroDivisionError:
                 self.save_history()
-                self.str = "Zero-div"
-            except Exception :
+                self.val_str = "Zero-div"
+            except Exception:
                 self.save_history()
-                self.str = "Error"
-                
+                self.val_str = "Error"
+
         elif txt == "sqrt":
-            if not self.str.isalpha():
-                self.str = str(math.sqrt(float(self.str)))
-            
+            if not self.val_str.isalpha():
+                self.val_str = str(math.sqrt(float(self.val_str)))
+
         elif txt == "pow":
-            if not self.str.isalpha() :
-                self.str = str(math.pow(round(float(self.str),4),2))
-            
+            if not self.val_str.isalpha():
+                self.val_str = str(math.pow(round(float(self.val_str), 4), 2))
+
         elif txt == "abs":
-            if not self.str.isalpha():
-                self.str = str(abs(float(self.str)))
-            
+            if not self.val_str.isalpha():
+                self.val_str = str(abs(float(self.val_str)))
+
         elif txt == "floor":
-            if not self.str.isalpha():
-                self.str = str(math.floor(float(self.str)))
-                    
+            if not self.val_str.isalpha():
+                self.val_str = str(math.floor(float(self.val_str)))
+
         elif txt == "ceil":
-            if not self.str.isalpha():
-                self.str = str(math.ceil(float(self.str)))
-            
+            if not self.val_str.isalpha():
+                self.val_str = str(math.ceil(float(self.val_str)))
+
         else:
-            self.str += txt
+            self.val_str += txt
 
     def save_history(self):
-        if self.str and len(self.history)<20:
-            if len(self.history) == 0 :
-                self.history.append(self.str)
-            elif self.history[-1]!=self.str:
-                self.history.append(self.str)
+        if self.val_str and len(self.history) < 20:
+            if len(self.history) == 0:
+                self.history.append(self.val_str)
+            elif self.history[-1] != self.val_str:
+                self.history.append(self.val_str)
 
     def build(self):
         kv = Builder.load_string("""
@@ -161,7 +162,7 @@ MainLayout:
                             pos:self.pos
                          
                     id:value
-                    text:app.str
+                    text:app.val_str
                     padding: dp(10),dp(10)
                     size_hint_y: None
                     text_size: self.width,None
