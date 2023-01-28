@@ -1,6 +1,7 @@
 from kivy.clock import Clock
 from kivy.config import Config
 from kivy.app import App
+from kivy.core.audio import SoundLoader
 from kivy.lang import Builder
 from kivy.properties import StringProperty, ListProperty
 from kivy.uix.button import Button
@@ -8,8 +9,11 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 import math
 
-Config.set('graphics', 'width', '300')
-Config.set('graphics', 'height', '500')
+from kivy.uix.widget import Widget
+
+Config.set('graphics', 'width', '320')
+Config.set('graphics', 'height', '600')
+
 
 class Btn(Button):
     def __init__(self, val='0', **kwargs):
@@ -34,18 +38,29 @@ class Keys(GridLayout):
         super(Keys, self).__init__(**kwargs)
         self.cols = 4
         self.rows = 5
-        Clock.schedule_once(lambda dt: self.add_keys(), 0)
+        self.add_keys()
 
-    keys = ['AC', 'C', '%', '/', '7', '8', '9', '*', '4', '5', '6', '-', '1', '2', '3', '+', '( )', '0', '.', '=']
+    keys = ['AC', 'C', "%", '/', '7', '8', '9', '*', '4', '5', '6', '-', '1', '2', '3', '+', '( )', '0', '.', '=']
 
     def add_keys(self):
         for i in self.keys:
             self.add_widget(Btn(i))
 
 
+class History(Widget):
+    app = App.get_running_app()
+    layout = GridLayout(cols=1, rows=4)
+
+    def __init__(self, **kwargs):
+        super(History, self).__init__(**kwargs)
+        self.add_widget(self.layout)
+
+
 class MyApp(App):
-    val_str = StringProperty('')
+    val_str=StringProperty()
     history = ListProperty([])
+    click = SoundLoader.load("click.wav")
+    click.volume = 0.3
     flag = 0
 
     def do_operation(self, txt):
@@ -119,12 +134,13 @@ class MyApp(App):
 
 <MainLayout>
 
+
 MainLayout:
-    
+
     id:base_layout    
     canvas.before:
         Color:
-            rgba:hexc('#122030')
+            rgba:hexc('#222433')#'#122030'
         Rectangle:
             size:self.size
             pos:self.pos
@@ -133,7 +149,7 @@ MainLayout:
     
         cols:1
         rows:3
-        padding:dp(10),dp(30),dp(10),dp(10)
+        padding:dp(10),dp(15),dp(10),dp(10)
         spacing:dp(10)
         
         FloatLayout:    # Float layout for value panel
@@ -145,7 +161,7 @@ MainLayout:
                 RoundedRectangle:
                     size:self.size
                     pos:self.pos
-                    radius:[20]
+                    radius:[10]
 
             size_hint:.6,.2
             
@@ -167,7 +183,7 @@ MainLayout:
                     size_hint_y: None
                     text_size: self.width,None
                     height: self.texture_size[1]
-                    font_name:'ostrich-regular.ttf'
+                    font_name:'Montserrat-SemiBold.ttf'
                     font_size:'50sp'
                    
                 
@@ -216,8 +232,8 @@ MainLayout:
             do_scroll_y:False
             do_scroll_x:True
             size_hint_y:.06
-            bar_color: (0,0,0, 1)
-            bar_width: 5
+            bar_color: hexc('#ffb901')
+            bar_width: 2
             
             BoxLayout:
                 width: self.minimum_width
@@ -229,14 +245,11 @@ MainLayout:
                     text:','
                     font_size:'0px'
                     outline_width:'0px'
-                    canvas.before:
-                        Color:
-                            rgba:1,1,1,.5
-                        Rectangle:
-                            source:'comma.png'
-                            size:self.size
-                            pos:self.pos
-                        
+                    Image:
+                        source:'comma.png'
+                        size:self.parent.size
+                        pos:self.parent.pos
+                    
                 Btn1:
                     text:'sqrt'
                 Btn1:
@@ -270,7 +283,7 @@ MainLayout:
                     radius:[20]
                                 
             id:base_window
-            spacing:dp(1)
+            spacing:dp(2)
             padding:dp(1)
             size_hint:1,.4
     
@@ -279,33 +292,34 @@ MainLayout:
     text:"0000"
     background_color:(0,0,0,0)
     background_normal:""
-    font_name:'ostrich-regular.ttf'
-    font_size:'30sp'
-    clr:(0,0,0,0)
+    font_name:'Montserrat-SemiBold.ttf'
+    font_size:'23sp'
+    clr:'#33354a'
     outline_color:(0,0,0,1)
-    outline_width:'3px'
+    outline_width:'1px'
     
     canvas.before:
         Color:
-            rgba:self.clr
+            rgba:hexc(self.clr)
         RoundedRectangle:
             size:self.size
             pos:self.pos
-            radius:[30]
+            radius:[4]
             
     on_press:
-        self.clr=(0,0,0,0.5)
+        self.clr='#222433'
+        app.click.play()
         app.do_operation(self.text)
      
-    on_release:self.clr=(0,0,0,0)
+    on_release:self.clr='#33354a'
             
 <Btn1@Btn>:
     text:'func()'
     font_name:'OstrichSans-Heavy.otf'
     font_size:'20sp'
     size_hint_x:None
-    width:dp(60)
-    outline_width:'8px'
+    
+    outline_width:'1px'
 
         """)
         return kv
